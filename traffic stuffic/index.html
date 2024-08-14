@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Traffic Offense Form</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      background-color: #f5f5f5;
+    }
+    .hero-body {
+      background-color: #3273dc;
+    }
+    .container {
+      max-width: 600px;
+      padding: 20px;
+    }
+    .field {
+      margin-bottom: 20px;
+    }
+    .button {
+      width: 100%;
+    }
+    .submit-button-container {
+      display: flex;
+      justify-content: space-between;
+    }
+    #message {
+      display: none;
+      margin: 20px 0;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    footer {
+      background-color: #3273dc;
+      padding: 10px;
+      color: white;
+      text-align: center;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="#">
+        <strong>Traffic Control System</strong>
+      </a>
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+
+    <div id="navbarBasicExample" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="#issue-ticket">Issue Ticket</a>
+        <a class="navbar-item" href="./views.html">View Ticket</a>
+      
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero is-primary is-bold">
+    <div class="hero-body">
+      <div class="container has-text-centered">
+        <h1 class="title">Traffic Offense Form</h1>
+      </div>
+    </div>
+  </section>
+
+  <div class="container mt-5" id="issue-ticket">
+    <form id="form" method="POST">
+      <div class="field">
+        <label class="label">Ticket No</label>
+        <div class="control">
+          <input class="input" type="text" name="Ticket No" id="ticketNo" readonly />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Date/Time</label>
+        <div class="control">
+          <input class="input" type="datetime-local" name="Date/Time" id="dateTime" required />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">License ID</label>
+        <div class="control">
+          <input class="input" type="text" name="License ID" placeholder="Enter License ID" required />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Driver's Name</label>
+        <div class="control">
+          <input class="input" type="text" name="Driver's Name" placeholder="Enter Driver's Name" required />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Student ID(traffic officer)</label>
+        <div class="control">
+          <input class="input" type="text" name="Student ID" placeholder="Enter Student ID" required />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Student Name</label>
+        <div class="control">
+          <input class="input" type="text" name="Student Name" placeholder="Enter Student Name" required />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Offense</label>
+        <div class="control">
+          <div class="select is-fullwidth">
+            <select name="Offenses" required>
+              <option value="" disabled selected>Select an Offense</option>
+              <option value="Over speeding">Over speeding</option>
+              <option value="Honking banned horns">Honking banned horns</option>
+              <option value="Using wrong route">Using wrong route</option>
+              <option value="Violating traffic signals">Violating traffic signals</option>
+              <option value="None">None</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Vehicle Type</label>
+        <div class="control">
+          <div class="select is-fullwidth">
+            <select name="Vehicle Type" required>
+              <option value="" disabled selected>Select Vehicle Type</option>
+              <option value="Car">Car</option>
+              <option value="Bike">Bike</option>
+              <option value="Truck">Truck</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="field submit-button-container">
+        <div class="control">
+          <button class="button is-primary" type="submit" id="submit-button">Submit Ticket</button>
+        </div>
+        <div class="control">
+          <button class="button is-link" type="button" id="download-button">Download Ticket</button>
+        </div>
+      </div>
+    </form>
+
+    <div id="message" class="notification"></div>
+  </div>
+
+  <!-- Footer -->
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Activate the mobile navbar toggle button
+      const burgerIcon = document.querySelector('.navbar-burger');
+      const navbarMenu = document.querySelector('.navbar-menu');
+
+      burgerIcon.addEventListener('click', () => {
+        navbarMenu.classList.toggle('is-active');
+      });
+
+      autoGenerateTicketNo();
+    });
+
+    function autoGenerateTicketNo() {
+      let ticketNo = 'TI-' + Math.floor(Math.random() * 1000000000);
+      document.getElementById('ticketNo').value = ticketNo;
+    }
+
+    document.getElementById('form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      document.getElementById('message').textContent = 'Submitting...';
+      document.getElementById('message').classList.add('is-info');
+      document.getElementById('message').style.display = 'block';
+      document.getElementById('submit-button').disabled = true;
+
+      var formData = new FormData(this);
+      var keyValuePairs = [];
+      for (var pair of formData.entries()) {
+        keyValuePairs.push(pair[0] + '=' + encodeURIComponent(pair[1]));
+      }
+
+      var formDataString = keyValuePairs.join('&');
+
+      fetch('https://script.google.com/macros/s/AKfycbyfUN3rLLkYV4vWM3dR3nYUEe-cOEuSKJuu5HyicmMmpYWh5ZFxIkgTMfNBU5ONtg5YAQ/exec', {
+        redirect: 'follow',
+        method: 'POST',
+        body: formDataString,
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
+      })
+        .then(function (response) {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error('Failed to submit the form.');
+          }
+        })
+        .then(function (data) {
+          document.getElementById('message').textContent = 'Ticket submitted successfully!';
+          document.getElementById('message').classList.remove('is-info');
+          document.getElementById('message').classList.add('is-success');
+          document.getElementById('submit-button').disabled = false;
+          document.getElementById('form').reset();
+          autoGenerateTicketNo();
+
+          setTimeout(function () {
+            document.getElementById('message').textContent = '';
+            document.getElementById('message').style.display = 'none';
+          }, 2600);
+        })
+        .catch(function (error) {
+          console.error(error);
+          document.getElementById('message').textContent = 'An error occurred while submitting the form.';
+          document.getElementById('message').classList.remove('is-info');
+          document.getElementById('message').classList.add('is-danger');
+          document.getElementById('message').style.display = 'block';
+        });
+    });
+
+    // Adjust the datetime-local input to handle time zone correctly
+    document.getElementById('dateTime').addEventListener('change', function () {
+      let dateTimeInput = this.value;
+      let date = new Date(dateTimeInput);
+
+      // Calculate the correct local time in Bangladesh time zone (Asia/Dhaka)
+      let options = {
+        timeZone: 'Asia/Dhaka',
+        hour12: true,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      };
+
+      let formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+      console.log("Selected Date/Time:", formattedDate);
+
+      // Adjusting value according to local time in Bangladesh
+      let offset = date.getTimezoneOffset() * 60000; // in milliseconds
+      let localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
+      this.value = localISOTime;
+    });
+
+    document.getElementById('download-button').addEventListener('click', function () {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      let ticketNo = document.getElementById('ticketNo').value;
+      let dateTime = document.getElementById('dateTime').value;
+      let licenseId = document.querySelector('input[name="License ID"]').value;
+      let driverName = document.querySelector('input[name="Driver\'s Name"]').value;
+      let studentId = document.querySelector('input[name="Student ID"]').value;
+      let studentName = document.querySelector('input[name="Student Name"]').value;
+      let offense = document.querySelector('select[name="Offenses"]').value;
+      let vehicleType = document.querySelector('select[name="Vehicle Type"]').value;
+
+      // Adding a watermark
+      doc.setTextColor(150);
+      doc.setFontSize(50);
+      doc.text('CHECKED', 35, 150, { angle: 45 });
+
+      // Adding header
+      doc.setTextColor(0);
+      doc.setFontSize(18);
+      doc.text('Traffic Offense Ticket', 20, 20);
+
+      doc.setFontSize(12);
+      doc.text(`Ticket No: ${ticketNo}`, 20, 30);
+      doc.text(`Date/Time: ${dateTime}`, 20, 40);
+      doc.text(`License ID: ${licenseId}`, 20, 50);
+      doc.text(`Driver's Name: ${driverName}`, 20, 60);
+      doc.text(`Student ID (Officer): ${studentId}`, 20, 70);
+      doc.text(`Student Name: ${studentName}`, 20, 80);
+      doc.text(`Offense: ${offense}`, 20, 90);
+      doc.text(`Vehicle Type: ${vehicleType}`, 20, 100);
+
+      // Adding traffic rules and advice
+      doc.setFontSize(14);
+      doc.text('Bangladesh Traffic Control Rules & Advice:', 20, 120);
+      doc.setFontSize(10);
+      doc.text('1. Always follow traffic signals to ensure safety.', 20, 130);
+      doc.text('2. Do not exceed speed limits; it saves lives.', 20, 140);
+      doc.text('3. Use seat belts and helmets for your safety.', 20, 150);
+      doc.text('4. Avoid honking unless necessary.', 20, 160);
+      doc.text('5. Do not drive under the influence of alcohol or drugs.', 20, 170);
+      doc.text('6. Always carry your driving license and vehicle documents.', 20, 180);
+      doc.text('7. Be cautious and aware of pedestrians.', 20, 190);
+
+      // Adding QR code (you can replace the URL with the actual one)
+      let qr = new QRCode(document.createElement("div"), {
+        text: "https://example.com", // replace this with the actual QR code URL
+        width: 50,
+        height: 50
+      });
+
+      let qrCanvas = qr._oDrawing._elCanvas;
+      let qrDataUrl = qrCanvas.toDataURL("image/png");
+
+      doc.addImage(qrDataUrl, 'PNG', 150, 20, 50, 50);
+
+      // Adding footer
+      doc.setFontSize(10);
+      doc.text('This is an auto-generated ticket slip. For more information, visit www.traffic-bd.gov', 20, 270);
+
+      doc.save('traffic_offense_ticket.pdf');
+    });
+  </script>
+</body>
+</html>
